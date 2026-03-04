@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Form</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f7fa;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"], 
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <form id="uploadForm">
+        <div class="input-group">
+            <label for="docName">Document Title</label>
+            <input type="text" id="docName" placeholder="Enter a name..." autocomplete="off">
+        </div>
+
+        <div class="input-group">
+            <label for="pdfFile">Select PDF</label>
+            <input type="file" id="pdfFile" accept=".pdf">
+        </div>
+
+        <button type="submit">Upload Data</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('docName').addEventListener('input', function() {
+    const pdfInput = document.getElementById('pdfFile');
+    pdfInput.disabled = !!this.value;
+    if (!this.value) pdfInput.value = '';
+});
+
+document.getElementById('pdfFile').addEventListener('change', function() {
+    const textInput = document.getElementById('docName');
+    textInput.disabled = !!this.files[0];
+    if (!this.files[0]) textInput.value = '';
+});
+
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('docName').value;
+    const file = document.getElementById('pdfFile').files[0];
+
+    if (!title && !file) {
+        alert("Please fill in at least one field");
+        return;
+    }
+
+    const formData = new FormData(); 
+
+    if (title) formData.append("title", title);
+    if (file) formData.append("file", file);
+
+    const response = await fetch("http://localhost:8000/", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    console.log(data);
+    document.getElementById('uploadForm').reset();
+    document.getElementById('docName').disabled = false;
+    document.getElementById('pdfFile').disabled = false;
+});
+</script>
+
+</body>
+</html>
